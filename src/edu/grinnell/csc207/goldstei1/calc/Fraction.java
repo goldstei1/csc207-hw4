@@ -56,11 +56,58 @@ public class Fraction {
 		this.cleanup();
 	} // Fraction(BigInteger, BigInteger)
 
+	/**
+	 * Create a new fraction from two integers
+	 */
 	public Fraction(int numerator, int denominator) {
 		this.numerator = BigInteger.valueOf(numerator);
 		this.denominator = BigInteger.valueOf(denominator);
 		this.cleanup();
 	} // Fraction(int, int)
+	
+	/**
+	 * Create a fraction from one integer
+	 */
+	public Fraction(int num) {
+		this.numerator = BigInteger.valueOf(num);
+		this.denominator = BigInteger.ONE;
+	}
+	
+	/**
+	 * Create a fraction from a string that is either an integer
+	 * or a fraction
+	 */
+	public Fraction(String expression) throws Exception {
+		StringBuffer frac = new StringBuffer(expression);
+		int i = 0;
+		int begOfDenom = 0;
+		String Numer = null;
+		
+		while (i < frac.length()) {
+			if (frac.charAt(i) == '/') {
+				Numer = frac.substring(0, i);
+				begOfDenom = i + 1;
+			}
+			else if (!Character.isDigit(frac.charAt(i))) {
+				throw new Exception("i"); // Throw new exception reporting the index
+										  // of the incorrect character.
+			}
+			i++;
+		}
+		
+		if (Numer == null) {
+			this.numerator = new BigInteger(frac.substring(0, i));
+			this.denominator = BigInteger.ONE;
+		}
+		
+		else {
+			this.numerator = new BigInteger(Numer);
+			this.denominator = new BigInteger(frac.substring(begOfDenom, i));
+		}
+		this.cleanup();
+	}
+	
+	
 
 	// +-------------------------+--------------------------------------
 	// | Standard Object Methods |
@@ -94,7 +141,7 @@ public class Fraction {
 	 * Returns the hashcode of this fraction
 	 */
 	public int hashCode() {
-		return 0;
+		return 1;
 	}
 	
 	/**
@@ -150,8 +197,8 @@ public class Fraction {
 	 */
 	private void simplify() {
 		BigInteger gcd = this.numerator.gcd(this.denominator);
-		this.numerator.divide(gcd);
-		this.denominator.divide(gcd);
+		this.numerator = this.numerator.divide(gcd);
+		this.denominator = this.denominator.divide(gcd);
 	} // simplify()
 
 	// +---------+------------------------------------------------------
@@ -162,7 +209,7 @@ public class Fraction {
 	 * Add another fraction to this fraction.
 	 * @throws Exception 
 	 */
-	public Fraction add(Fraction addend) throws Exception {
+	public Fraction add(Fraction addend) throws Exception{
 		BigInteger resultNumerator;
 		BigInteger resultDenominator;
 

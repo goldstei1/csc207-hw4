@@ -3,7 +3,7 @@ package edu.grinnell.csc207.goldstei1.calc;
 import java.math.BigInteger;
 
 /**
- * An implementation of a calculator.
+ * An implementation of a calculator that can store 9 
  * 
  * @author Daniel Goldstein
  */
@@ -22,7 +22,7 @@ public class Calculator {
 	// | Fields |
 	// +--------+
 	
-	static Fraction[] r = new Fraction[8];
+	static Fraction[] r = new Fraction[9];
 	
 	// +--------------+-------------------------------------------------
 	// | Constructors |
@@ -51,9 +51,9 @@ public class Calculator {
 		StringBuffer evaluator = new StringBuffer(expression);
 		BigInteger endValue = new BigInteger("0"); //first number in string is added later
 		char nextOperation = '+'; // first operation is always add (add first number to 0)
-		int begOfNum;
 		int i = 0; //starting index of the evaluator string
-		String Numer = null;
+		int begOfNum;
+		Fraction frac;
 
 		if (evaluator.charAt(i) == 'r') {
 			i++;
@@ -66,32 +66,24 @@ public class Calculator {
 				
 				// If correct formatting
 				int rIndex = Character.getNumericValue(evaluator.charAt(1));
-				begOfNum = i;
-				while (evaluator.charAt(i) != '/' && i < evaluator.length()) {
-					if(evaluator.charAt(i) == '/') {
-						Numer = evaluator.substring(begOfNum, i);
-						begOfNum = i++;
-					}
-					else if(!Character.isDigit(evaluator.charAt(i))) {
-						throw new Exception("Malformed format at character " + i);
-					}
-					else {
-						i++;	
-					}
+				
+				try {
+					frac = new Fraction(i, evaluator.charAt(i));
 				}
-				if (Numer == null) {
-					r[rIndex] = new Fraction(new BigInteger(evaluator.substring(begOfNum, i)),
-							BigInteger.valueOf(1));
+				catch (Exception e){
+					// Find the location of the incorrect input by adding the 
+					// number given in the exception that is caught to the start of
+					// the fraction that was input.
+					int malformedChar = Character.getNumericValue(e.getMessage().charAt(0)) + 5;
+					throw new Exception("Malformed input at character " + malformedChar);
 				}
-				else {
-					r[rIndex] = new Fraction(new BigInteger(Numer),
-							new BigInteger(evaluator.substring(begOfNum, i)));
-				}
+				
+				r[rIndex] = frac;
 				return r[rIndex];
 			}
 			
 			else {
-				throw new Exception("Incorrect input format at character " + i);
+				throw new Exception("Malformed input at character " + i);
 			}
 
 		}
