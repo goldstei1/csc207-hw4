@@ -219,7 +219,7 @@ public static void main(String[] args) {
 	PrintWriter pen = new PrintWriter(System.out, true);
 	try {
 	Calculator.evaluate("r0 = 1/2"); Calculator.evaluate("r1 = 2/3");
-	Fraction frac = Calculator.evaluate("r0 + r1");
+	Fraction frac = Calculator.evaluate("r0 + r 1");
 	pen.println(frac.toString());
 	}
 	catch (Exception e) {
