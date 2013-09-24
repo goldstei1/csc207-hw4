@@ -11,7 +11,6 @@ import java.math.BigInteger;
  */
 public class Fraction {
 
-
 	// +------------------+---------------------------------------------
 	// | Design Decisions |
 	// +------------------+
@@ -47,7 +46,8 @@ public class Fraction {
 	/**
 	 * Create a new fraction equivalent to numerator/denominator.
 	 */
-	public Fraction(BigInteger numerator, BigInteger denominator) throws Exception {
+	public Fraction(BigInteger numerator, BigInteger denominator)
+			throws Exception {
 		if (denominator.signum() == 0) {
 			throw new Exception("Zero is an invalid denominator");
 		}
@@ -67,7 +67,7 @@ public class Fraction {
 		this.denominator = BigInteger.valueOf(denominator);
 		this.cleanup();
 	} // Fraction(int, int)
-	
+
 	/**
 	 * Create a fraction from one integer
 	 */
@@ -75,45 +75,42 @@ public class Fraction {
 		this.numerator = BigInteger.valueOf(num);
 		this.denominator = BigInteger.ONE;
 	}
-	
+
 	/**
-	 * Create a fraction from a string that is either an integer
-	 * or a fraction
+	 * Create a fraction from a string that is either an integer or a fraction
 	 */
 	public Fraction(String expression) throws Exception {
 		StringBuffer frac = new StringBuffer(expression);
 		int i = 0;
 		int begOfDenom = 0;
 		String Numer = null;
-		
+
 		while (i < frac.length()) {
 			if (frac.charAt(i) == '/') {
 				Numer = frac.substring(0, i);
 				begOfDenom = i + 1;
-			}
-			else if (!Character.isDigit(frac.charAt(i))) {
-				throw new Exception("i"); // Throw new exception reporting the index
-										  // of the incorrect character.
+			} else if (!Character.isDigit(frac.charAt(i))) {
+				throw new Exception(Integer.toString(i)); // Throw new exception reporting the
+											// index
+											// of the incorrect character.
 			}
 			i++;
 		}
-		
+
 		if (Numer == null) {
 			this.numerator = new BigInteger(frac.substring(0, i));
 			this.denominator = BigInteger.ONE;
 		}
-		
+
 		else {
 			this.numerator = new BigInteger(Numer);
 			this.denominator = new BigInteger(frac.substring(begOfDenom, i));
-			if(this.denominator.signum() == 0) {
+			if (this.denominator.signum() == 0) {
 				throw new Exception("Zero is an invalid denominator");
 			}
 		}
 		this.cleanup();
 	}
-	
-	
 
 	// +-------------------------+--------------------------------------
 	// | Standard Object Methods |
@@ -128,56 +125,58 @@ public class Fraction {
 		// and return
 		return this.numerator + "/" + this.denominator;
 	} // toString()
-	
+
 	/**
 	 * Takes an object and returns true if it is equal to this fraction
 	 */
 	public boolean equals(Object obj) {
 		if (obj instanceof Fraction) {
 			Fraction fracObj = (Fraction) obj;
-			return (this.numerator == fracObj.numerator &&
-					this.denominator == fracObj.denominator);
-		}
-		else {
+			return (this.numerator == fracObj.numerator && this.denominator == fracObj.denominator);
+		} else {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Returns the hashcode of this fraction
 	 */
 	public int hashCode() {
-		return 1;
+		return this.numerator.hashCode() * this.denominator.hashCode();
 	}
-	
+
 	/**
-	 * Clones this fraction
-	 * @throws Exception
+	 * Clones this fraction. If 
 	 */
 	public Fraction clone() {
 		try {
 			return new Fraction(this.numerator, this.denominator);
 		} catch (Exception e) {
-			e.printStackTrace();
+			return null;
 		}
-		return null;
 	}
-	
+
 	/**
-	 * Takes a fraction and returns 0 if they are equal,
-	 * 1 if this fraction is bigger than comparer, and -1
-	 * if it is less than comparer
+	 * Takes a fraction and returns 0 if they are equal, 1 if this fraction is
+	 * bigger than comparer, and -1 if it is less than comparer. Returns 1 if
+	 * comparer is an invalid fraction.
 	 */
 	public int compareTo(Fraction comparer) {
 		if (this.equals(comparer)) {
 			return 0;
 		} // if
-		else if (this.doubleValue() > comparer.doubleValue()) {
-			return 1;
-		} // else if
-		else {
-			return -1;
-		} // else
+		else
+			try {
+				if (this.subtract(comparer).numerator.signum() == 1) {
+					return 1;
+				} // else if
+				else {
+					return -1;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} // else
+		return 1;
 	}
 
 	// +-----------------+----------------------------------------------
@@ -185,10 +184,9 @@ public class Fraction {
 	// +-----------------+
 
 	/**
-	 * Cleanup the fraction by eliminating any negative sign from
-	 * the denominator and moving it to the numerator. Also calls
-	 * simplify so that the fraction is represented in its simplified
-	 * form.
+	 * Cleanup the fraction by eliminating any negative sign from the
+	 * denominator and moving it to the numerator. Also calls simplify so that
+	 * the fraction is represented in its simplified form.
 	 */
 	private void cleanup() {
 		if (this.denominator.signum() < 0) {
@@ -212,9 +210,9 @@ public class Fraction {
 	// +---------+
 
 	/**
-	 * Add another fraction to this fraction. 
+	 * Add another fraction to this fraction.
 	 */
-	public Fraction add(Fraction addend) throws Exception{
+	public Fraction add(Fraction addend) throws Exception {
 		if (addend.denominator.signum() == 0) {
 			throw new Exception("Zero is an invalid denominator");
 		}
@@ -235,38 +233,41 @@ public class Fraction {
 		// Return the computed value
 		return new Fraction(resultNumerator, resultDenominator);
 	} // add(Fraction)
-	
+
 	/**
 	 * Add another int to this fraction
 	 */
-	public Fraction add(int addend) throws Exception{
+	public Fraction add(int addend) throws Exception {
 		// Make the int into a BigInteger
 		BigInteger toAdd = BigInteger.valueOf(addend);
-		
+
 		// Return a new fraction that has the int added to it
-		// by multiplying it by the denominator and adding it 
+		// by multiplying it by the denominator and adding it
 		// to the numerator
-		return new Fraction(this.numerator
-				.add(this.denominator.multiply(toAdd)), this.denominator);
+		return new Fraction(
+				this.numerator.add(this.denominator.multiply(toAdd)),
+				this.denominator);
 	} // add(int)
-	
+
 	/**
 	 * Subtract a fraction from this fraction
 	 */
-	public Fraction subtract(Fraction subtractor) throws Exception{
+	public Fraction subtract(Fraction subtractor) throws Exception {
 		// Make a negative version of the fraction to subtract
 		if (subtractor.denominator.signum() == 0) {
 			throw new Exception("Zero is an invalid denominator");
 		}
-		
-		Fraction neg = new Fraction(subtractor.numerator.multiply(NEGATIVE_ONE),
+
+		Fraction neg = new Fraction(
+				subtractor.numerator.multiply(NEGATIVE_ONE),
 				subtractor.denominator);
 		return this.add(neg);
 		// Add the negative version of subtractor to this fraction
 	} // subtract(Fraction)
-	
+
 	/**
 	 * Subtract an int from this fraction
+	 * 
 	 * @throws Exception
 	 */
 	public Fraction subtract(int subtractor) throws Exception {
@@ -274,7 +275,7 @@ public class Fraction {
 		int neg = subtractor * -1;
 		return this.add(neg);
 	} // subtract(int)
-	
+
 	/**
 	 * Multiply this fraction by another fraction
 	 */
@@ -284,28 +285,29 @@ public class Fraction {
 		}
 		BigInteger resultNumerator;
 		BigInteger resultDenominator;
-		
+
 		// The numerator and denominator are equal to multiplying the
 		// two numerators and denominators together respectively
 		resultDenominator = this.denominator.multiply(multiplier.denominator);
 		resultNumerator = this.numerator.multiply(multiplier.numerator);
-		
+
 		// Return the computed value
 		return new Fraction(resultNumerator, resultDenominator);
 	} // multiply(Fraction)
-	
+
 	/**
 	 * Multiply this fraction by another integer
 	 */
 	public Fraction multiply(int multiplier) throws Exception {
 		// Make multiplier into a BigInteger
 		BigInteger toMultiply = BigInteger.valueOf(multiplier);
-		
+
 		// Return a new fraction that has been multiplied by multiplier
 		// by multiplying the numerator by that number
-		return new Fraction(this.numerator.multiply(toMultiply), this.denominator);
+		return new Fraction(this.numerator.multiply(toMultiply),
+				this.denominator);
 	} // multiply(int)
-	
+
 	/**
 	 * Divide this fraction by another fraction
 	 */
@@ -313,14 +315,14 @@ public class Fraction {
 		if (divider.denominator.signum() == 0) {
 			throw new Exception("Zero is an invalid denominator");
 		}
-		//Make a new fraction that is the reciprocal of the divider
+		// Make a new fraction that is the reciprocal of the divider
 		Fraction recip = new Fraction(divider.denominator, divider.numerator);
-		
+
 		// Multiply this fraction by the reciprocal of divider to get
 		// the same result as dividing by that fraction
 		return this.multiply(recip);
 	} // divide(Fraction)
-	
+
 	/**
 	 * Divide this fraction by another integer
 	 */
@@ -330,26 +332,27 @@ public class Fraction {
 		}
 		// Make divider into a BigInteger
 		BigInteger toDivide = BigInteger.valueOf(divider);
-		
+
 		// Return the result of dividing this fraction by an integer
 		// by multiplying the denominator by the divider
 		return new Fraction(this.numerator, this.denominator.multiply(toDivide));
 	} // divide(int)
-	
+
 	/**
 	 * Raise a Fraction to a power
+	 * 
 	 * @throws Exception
 	 */
-	public Fraction Expt(int power) throws Exception {
+	public Fraction expt(int power) throws Exception {
 		// Raise this fraction to a power by raising both the numerator
 		// and the denominator to that power respectively
-		return new Fraction(this.numerator.pow(power), this.denominator.pow(power));
+		return new Fraction(this.numerator.pow(power),
+				this.denominator.pow(power));
 	} // power(int)
 
 	/**
-	 * Approximate this fraction as a double.
-	 * Precondition: this.numerator and this.denominator must be small enough to be
-	 * 				 represented as doubles.
+	 * Approximate this fraction as a double. Precondition: this.numerator and
+	 * this.denominator must be small enough to be represented as doubles.
 	 */
 	public double doubleValue() {
 		return this.numerator.doubleValue() / this.denominator.doubleValue();

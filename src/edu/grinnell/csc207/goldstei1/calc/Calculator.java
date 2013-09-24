@@ -9,41 +9,16 @@ import java.io.PrintWriter;
  */
 public class Calculator {
 
-	
-	// +------------------+---------------------------------------------
-	// | Design Decisions |
-	// +------------------+
-
-		/*
-		 * 
-		 */
-
 	// +--------+-------------------------------------------------------
 	// | Fields |
 	// +--------+
 	
 	static Fraction[] r = new Fraction[9];
 	
-	// +--------------+-------------------------------------------------
-	// | Constructors |
-	// +--------------+
-	
-	public Calculator() {
-		return;
-	}
-	
-	// +-------------------------+--------------------------------------
-	// | Standard Object Methods |
-	// +-------------------------+
-	
-	// +-----------------+----------------------------------------------
-	// | Private Methods |
-	// +-----------------+
-	
 	// +---------+------------------------------------------------------
 	// | Methods |
 	// +---------+
-	
+
 	/**
 	 * Method to solve a mathematical expression given as a string
 	 * with spaces between each number and operation. The numbers
@@ -52,175 +27,106 @@ public class Calculator {
 	 */
 	public static Fraction evaluate(String expression) throws Exception {
 
-		StringBuffer evaluator = new StringBuffer(expression);
-		char nextOperation; // first operation is always add (add first number to 0)
-		int i = 0; //starting index of the evaluator string
-		int begOfNum;
+		String[] expSplit = expression.split(" ");
+		int fracCount = expSplit.length - (expSplit.length / 2);
 		int rIndex;
-		Fraction frac1;
-		Fraction frac2;
+		Fraction[] fracs = new Fraction[fracCount];
+		Fraction finalFrac;
 
-		if (evaluator.charAt(i) == 'r') {
-			i++;
+		for (int i = 0; i < expSplit.length; i += 2) {
+			if (expSplit[i].charAt(0) == 'r') {
+				if (Character.isDigit(expSplit[i].charAt(1))
+						&& Character.getNumericValue(expSplit[i].charAt(1)) <= 8
+						&& expSplit[i].length() == 2) {
 
-			// Check for correct formatting of the form r'digit' = Fraction(or int)
-			if (Character.isDigit(evaluator.charAt(i)) &&
-					Character.getNumericValue(evaluator.charAt(i)) <= 8 &&
-					evaluator.charAt(++i) == ' ') {
+					rIndex = Character.getNumericValue(expSplit[i].charAt(1));
 
-				rIndex = Character.getNumericValue(evaluator.charAt(1));
+					if (expSplit.length == 1) {
+						if (r[rIndex] != null) {
+							fracs[i / 2] = r[rIndex];
+						} else {
+							throw new Exception("Malformed input: r" + rIndex
+									+ " is not defined");
+						}
+					}
 
-				if (evaluator.charAt(++i) == '=') {
-					if (evaluator.charAt(++i) == ' ' && Character.isDigit(evaluator.charAt(++i))) {
-						try {
-							frac1 = new Fraction(evaluator.substring(i, evaluator.length()));
-						}// try
-						
-						catch (Exception e){
-							// Find the location of the incorrect input by adding the 
-							// number given in the exception that is caught to the start of
-							// the fraction that was input.
-							int malformedChar = Character.getNumericValue(e.getMessage().charAt(0)) + 5;
-							throw new Exception("Malformed input at character: " + malformedChar);
-						}// catch(Exception e)
+					else if (i != 0 || !expSplit[1].equals("=")) {
+						if (r[rIndex] != null) {
+							fracs[i / 2] = r[rIndex];
+						} else {
+							throw new Exception("Malformed input: r" + rIndex
+									+ " is not defined");
+						}
+					}
 
-						r[rIndex] = frac1;
-						return r[rIndex];
-					}// if (evaluator(4) == ' ' and evaluator(5) is a digit)
 					else {
-						throw new Exception("Malformed input at character: " + i);
-					}// else
-				}// if (evaluator(3) == '=')
+						try {
+							r[rIndex] = evaluate(expression.substring(5));
+							return r[rIndex];
+						} catch (Exception e) {
+							throw e;
+						}
+					}
+				} 
 				
 				else {
-					
-					if(r[rIndex] != null) {
-						frac1 = r[rIndex];
-					}// if (r[rIndex != null])
-					
-					else {
-						throw new Exception("r" + rIndex + "is currently empty");
-					}// else
-				}// else
-			}// if (evaluator(1)) is a digit and evaluator(2) == ' ')
-			
+					throw new Exception("Malformed input: " + expSplit[i]);
+				}
+			}
+
 			else {
-				throw new Exception("Malformed input at character: " + i);
-			}
-			
-		}// if(evaluator(0) == 'r')
-		
-		else if (Character.isDigit(evaluator.charAt(i))) {
-			while (i < evaluator.length() && evaluator.charAt(i) != ' ') {
-				if (evaluator.charAt(i) != '/' && !Character.isDigit(evaluator.charAt(i))) {
-					throw new Exception("Malformed input at character: " + i);
-				}
-				else {
-					i++;
+				try {
+					fracs[i / 2] = new Fraction(expSplit[i]);
+				} catch (Exception e) {
+					throw new Exception("Malformed input: " + expSplit[i]);
 				}
 			}
-			
-			try {
-				frac1 = new Fraction(evaluator.substring(0, i));
-				i++;
-			}
-			catch (Exception e) {
-				int malformedChar = Character.getNumericValue(e.getMessage().charAt(0));
-				throw new Exception("Malformed input at character: " + malformedChar);
-			}// catch
-		}// else if(evaluator(i)) is a digit
-		
-		else {
-			throw new Exception("Malformed input at character: " + i);
 		}
 
-		while (i < evaluator.length()) {
-			//Check for which operation is going to be performed.
-			// Skipped first time through the loop
-			switch (evaluator.charAt(i)) {
-			case '+': nextOperation = '+';
-			break;
-			case '-': nextOperation = '-';
-			break;
-			case '*': nextOperation = '*';
-			break;
-			case '/': nextOperation = '/';
-			break;
-			case '^': nextOperation = '^';
-			break;
-			default : throw new Exception("Malformed input at character: " + i);
-			}//switch
+		finalFrac = fracs[0];
 
-			if ( evaluator.charAt(++i) != ' ') {
-				throw new Exception("Malformed input at character: " + i);
-			}
-			
-			if (evaluator.charAt(++i) == 'r') {
-				if(Character.isDigit(evaluator.charAt(++i)) &&
-						Character.getNumericValue(evaluator.charAt(i)) <= 8) {
-					rIndex = Character.getNumericValue(evaluator.charAt(i));
-				}
-				else {
-					throw new Exception("Malformed input at character: " + i);
-				}
-				
-				if (r[rIndex] != null) {
-					frac2 = r[rIndex];
-				}// if (r[rIndex != null])
-				
-				else {
-					throw new Exception("r" + rIndex + "is currently empty");
-				}// else
-				
-				if (++i < evaluator.length() && evaluator.charAt(i) != ' ') {
-					throw new Exception("Malformed input at character: " + i);
-				}
-			}
-			
-			else if (Character.isDigit(evaluator.charAt(i))) {
-				begOfNum = i;
-				i++;
-				while (i < evaluator.length() && evaluator.charAt(i) != ' ') {
-					if (evaluator.charAt(i) != '/' && !Character.isDigit(evaluator.charAt(i))) {
-						throw new Exception("Malformed input at character: " + i);
-					}
-					else {
-						i++;
-					}
-				}
-				frac2 = new Fraction(evaluator.substring(begOfNum, i));
-			}
-			
-			else {
-				throw new Exception("Malformed input at character: " + i);
-			}
-			
-			switch (nextOperation) {
-			case '+': frac1 = frac1.add(frac2);
-			break;
-			case '-': frac1 = frac1.subtract(frac2);
-			break;
-			case '*': frac1 = frac1.multiply(frac2);
-			break;
-			case '/': frac1 = frac1.divide(frac2);
-			break;
-			case '^': frac1 = frac1.Expt(2);
-			break;
-			}//switch
-			i++;			
-	
-		}//While
+		for (int i = 1; i < expSplit.length; i += 2) {
 
-		return frac1;
-	}// evaluate
-
+			switch (expSplit[i].charAt(0)) {
+			case '+':
+				finalFrac = finalFrac.add(fracs[i / 2 + 1]);
+				break;
+			case '-':
+				finalFrac = finalFrac.subtract(fracs[i / 2 + 1]);
+				break;
+			case '*':
+				finalFrac = finalFrac.multiply(fracs[i / 2 + 1]);
+				break;
+			case '/':
+				finalFrac = finalFrac.divide(fracs[i / 2 + 1]);
+				break;
+			case '^':
+				try {
+					finalFrac = finalFrac.expt(Integer
+							.parseInt(expSplit[i + 1]));
+				} catch (Exception e) {
+					throw new Exception("Malformed Input: The '^' operation "
+							+ "must be followed by an integer.");
+				}
+				break;
+			default:
+				throw new Exception("Malformed input: " + expSplit[i]
+						+ " is not an accepted operation here.");
+			}// switch
+		}
+		return finalFrac;
+	}
 
 public static void main(String[] args) {
 	PrintWriter pen = new PrintWriter(System.out, true);
 	try {
-	Calculator.evaluate("r0 = 1/2"); Calculator.evaluate("r1 = 2/3");
-	Fraction frac = Calculator.evaluate("r0 + r 1");
+	Calculator.evaluate("r0 = 1/2");
+	Calculator.evaluate("r1 = 2/3");
+	Fraction frac = Calculator.evaluate("r0 + r1");
+	Fraction frac2 = Calculator.evaluate("3/4 / 2/2 + r1 - 1/3 * 1/7");
 	pen.println(frac.toString());
+	pen.println(frac2.toString());
+	pen.println(Calculator.evaluate("r1 ^ 3"));
 	}
 	catch (Exception e) {
 		pen.println(e.getMessage());
