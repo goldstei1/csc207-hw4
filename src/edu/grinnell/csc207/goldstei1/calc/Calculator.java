@@ -1,5 +1,7 @@
 package edu.grinnell.csc207.goldstei1.calc;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 /**
@@ -35,9 +37,9 @@ public class Calculator {
 
 		for (int i = 0; i < expSplit.length; i += 2) {
 			if (expSplit[i].charAt(0) == 'r') {
-				if (Character.isDigit(expSplit[i].charAt(1))
-						&& Character.getNumericValue(expSplit[i].charAt(1)) <= 8
-						&& expSplit[i].length() == 2) {
+				if (expSplit[i].length() == 2 &&
+						Character.isDigit(expSplit[i].charAt(1)) &&
+						Character.getNumericValue(expSplit[i].charAt(1)) <= 8) {
 
 					rIndex = Character.getNumericValue(expSplit[i].charAt(1));
 
@@ -70,7 +72,7 @@ public class Calculator {
 				} 
 				
 				else {
-					throw new Exception("Malformed input: " + expSplit[i]);
+					throw new Exception("Malformed input: " + "\"" + expSplit[i] + "\"");
 				}
 			}
 
@@ -78,7 +80,7 @@ public class Calculator {
 				try {
 					fracs[i / 2] = new Fraction(expSplit[i]);
 				} catch (Exception e) {
-					throw new Exception("Malformed input: " + expSplit[i]);
+					throw new Exception("Malformed input: " + "\"" + expSplit[i] + "\"");
 				}
 			}
 		}
@@ -116,22 +118,49 @@ public class Calculator {
 		}
 		return finalFrac;
 	}
-
-public static void main(String[] args) {
-	PrintWriter pen = new PrintWriter(System.out, true);
-	try {
-	Calculator.evaluate("r0 = 1/2");
-	Calculator.evaluate("r1 = 2/3");
-	Fraction frac = Calculator.evaluate("r0 + r1");
-	Fraction frac2 = Calculator.evaluate("3/4 / 2/2 + r1 - 1/3 * 1/7");
-	pen.println(frac.toString());
-	pen.println(frac2.toString());
-	pen.println(Calculator.evaluate("r1 ^ 3"));
+	
+	public static Fraction[] evaluate(String[] expressions) throws Exception {
+		Fraction[] answers = new Fraction[expressions.length];
+		for (int i = 0; i < expressions.length; i++) {
+			try {
+			answers[i] = evaluate(expressions[i]);
+			}
+			catch (Exception e) {
+				throw new Exception("Expression " + i + ": " + e.getMessage());
+			}
+		}
+		return answers;
 	}
-	catch (Exception e) {
-		pen.println(e.getMessage());
-	}
-}
 
+	public static void main(String[] args) throws Exception {
+		PrintWriter pen = new PrintWriter(System.out, true);
+		InputStreamReader istream = new java.io.InputStreamReader(System.in);
+		BufferedReader eyes = new java.io.BufferedReader(istream);
+		String[] expressions;
+		boolean on = true;
+
+		pen.println("Welcome to the fraction calculator.\nThis calculater allows you to enter"
+				+ " a string or list of strings containing fractions and integers that you want"
+				+ " to be solved.\nAvailable operations include +,-,*,/,^\n"
+				+ "Lists of expressions must be separated by a ':'.\nEnter quit to exit");
+
+		while (on) {
+			pen.println("Please enter an expression: ");
+			expressions = eyes.readLine().split(":");
+			if (expressions[0].equals("quit")) {
+				pen.println("Goodbye");
+				on = false;
+			} else {
+				try {
+					for (int i = 0; i < expressions.length; i++) {
+						pen.print("{" + evaluate(expressions[i]) + "} ");
+					}
+					pen.println();
+				} catch (Exception e) {
+					pen.println(e.getMessage());
+				}
+			}
+		}
+	}
 
 }// Calculator
