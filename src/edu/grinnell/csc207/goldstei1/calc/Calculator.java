@@ -232,7 +232,7 @@ public class Calculator {
 				}// try
 				catch (Exception e) {
 					pen.println(e.getMessage());
-					pen.println("Numbers and operands must be separated by a space and they must alternate.");
+					pen.println("Note: Numbers and operands must be separated by a space and they must alternate.");
 				}// catch
 			}// else
 		}// while(on)
