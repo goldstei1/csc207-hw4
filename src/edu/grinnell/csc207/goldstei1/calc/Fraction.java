@@ -89,10 +89,14 @@ public class Fraction {
 			if (frac.charAt(i) == '/') {
 				Numer = frac.substring(0, i);
 				begOfDenom = i + 1;
-			} else if (!Character.isDigit(frac.charAt(i))) {
-				throw new Exception(Integer.toString(i)); // Throw new exception reporting the
-											// index
-											// of the incorrect character.
+			} 
+			else if (!Character.isDigit(frac.charAt(i))) {
+				if (i != 0 || frac.charAt(i) != '-') {
+					if (Numer != null && i != begOfDenom) {
+						throw new Exception(Integer.toString(i));
+						// Throw exception reporting where the string is malformed
+					}
+				}
 			}
 			i++;
 		}
@@ -132,8 +136,14 @@ public class Fraction {
 	public boolean equals(Object obj) {
 		if (obj instanceof Fraction) {
 			Fraction fracObj = (Fraction) obj;
-			return (this.numerator == fracObj.numerator && this.denominator == fracObj.denominator);
-		} else {
+			try {
+				return this.subtract(fracObj).numerator.equals(BigInteger.ZERO);
+			} 
+			catch (Exception e) {
+				return false;
+			}
+		}
+		else {
 			return false;
 		}
 	}
@@ -146,7 +156,7 @@ public class Fraction {
 	}
 
 	/**
-	 * Clones this fraction. If 
+	 * Clones this fraction.
 	 */
 	public Fraction clone() {
 		try {
@@ -353,9 +363,15 @@ public class Fraction {
 	/**
 	 * Approximate this fraction as a double. Precondition: this.numerator and
 	 * this.denominator must be small enough to be represented as doubles.
+	 * @throws Exception 
 	 */
-	public double doubleValue() {
-		return this.numerator.doubleValue() / this.denominator.doubleValue();
+	public double doubleValue() throws Exception {
+		try {
+			return this.numerator.doubleValue() / this.denominator.doubleValue();
+		}
+		catch (Exception e) {
+			throw e;
+		}
 	} // doubleValue()
 
 } // class Fraction
